@@ -11,8 +11,11 @@ public:
 
 	void init(string name, int money);
 	void playerInventory();
+	bool canAffordItem(string name, int money);
 	bool removeItem(string name, item &newItem);
 	void addItem(item newItem);
+	void addMoney(int money) { _money += money; }
+
 
 	//getters
 	int getMoney() { return _money; }

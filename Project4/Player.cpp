@@ -15,15 +15,32 @@ void Player::init(string name, int money)
 void Player::playerInventory()
 {
 	cout <<"*** "<< _name << "'s inventory ***\n\n";
-
+	cout << "Money: " << _money << " GP\n\n";
 	list<item>::iterator lit;
 
 	int i = 0;
 
 	for (lit = _items.begin(); lit != _items.end(); lit++) {
-		cout << i << ". " << (*lit).getName() << " x " << (*lit).getCount() << endl;
+		cout << i << ". " << (*lit).getName() << " x " << (*lit).getCount()<< "Price: " << (*lit).getValue() << " GP" << endl;
 		i++;
 	}
+}
+
+bool Player::canAffordItem(string name, int money)
+{
+	list<item>::iterator lit;
+
+	for (lit = _items.begin(); lit != _items.end(); lit++) {
+		if ((*lit).getName() == name) {
+			if ((*lit).getValue() <= money) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+	}
+	return false;
 }
 
 bool Player::removeItem(string name, item &newItem)
@@ -34,7 +51,7 @@ bool Player::removeItem(string name, item &newItem)
 		if ((*lit).getName() == name) {
 			newItem = (*lit);
 			(*lit).removeOne();
-			if ((*lit).getCount == 0) {
+			if ((*lit).getCount() == 0) {
 				_items.erase(lit);
 			}			
 			return true;
@@ -48,7 +65,7 @@ void Player::addItem(item newItem)
 	list<item>::iterator lit;
 	//iterates through list of items
 	for (lit = _items.begin(); lit != _items.end(); lit++) {
-		//(*lit) takes presedence over the (.) operator
+		/*(*lit) takes presedence over the (.) operator*/
 		//if new item is found add to list
 		if ((*lit).getName() == newItem.getName()) {
 			(*lit).addOne();

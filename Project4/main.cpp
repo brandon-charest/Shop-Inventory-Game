@@ -8,43 +8,61 @@
 
 using namespace std;
 
+
+//Function prototypes (forward declaration)
 void initShop(list<Shop> &shops);
 void initPlayer(Player &player);
 void enterShop(Player &player, Shop &shop);
 
 int main() {
 
+	//declare our variable
 	list<Shop> shops;
+
+	//iterator
 	list<Shop>::iterator lit;
 	Player player;
+	string shopChoice;
 	//initialize
 	initPlayer(player);
 	initShop(shops);
-	string shopChoice;
+	
 
 	//game loop
 	bool isDone = false;
-	while (isDone = false) {
+	while (isDone == false) {
 		cout << "Shops:\n";
 		int i = 1;
 		for (lit = shops.begin(); lit != shops.end(); lit++) {
 			cout << i << ". " << (*lit).getName() << endl;
 			i++;
 		}
-		cout << "\nWhat shop would you like to enter? ";
-		cin >> shopChoice;
+		cout << "\nWhat shop would you like to enter? ";	
+		getline(cin, shopChoice);
+		cin.ignore(64, '\n');
+		cin.clear();
+
+		cout << "You inputted: " << shopChoice << endl;
+
+		bool validShop = false;
 
 		for (lit = shops.begin(); lit != shops.end(); lit++) {
 			if ((*lit).getName() == shopChoice) {
 				enterShop(player, (*lit));
-			}
+				validShop = true;
+			}			
 		}
-	}
 
-
+		if (validShop == false) {
+			cout << "Invalid Shop!\n";
+			system("PAUSE");
+		
+		}
+	}	
 	system("PAUSE");
 	return 0;
 }
+
 
 void initShop(list<Shop> &shops) 
 {
@@ -82,7 +100,7 @@ void initPlayer(Player &player)
 {
 	cout << "Enter thy name: ";
 	string name;
-	cin >> name;
+	getline(cin, name);
 
 	player.init(name, 100);
 	player.addItem(item("Silver Sword", 25));
@@ -94,7 +112,9 @@ void enterShop(Player &player, Shop &shop)
 	item newItem("NOITEM", 0);
 	char input;
 	bool isDone = false;
-	while (isDone = false) {
+
+
+	while (isDone == false) {
 		shop.printShop();
 		player.playerInventory();
 
@@ -107,25 +127,47 @@ void enterShop(Player &player, Shop &shop)
 		}
 		if (input == 'B' || input =='b') {
 			cout << "Enter the item you wish to buy: ";
-			cin >> itemName;
+			//clears input
+			cin.ignore(64, '\n');
+			cin.clear();
+			getline(cin, itemName);
 
-			if (shop.purchaseItem(itemName, newItem) == true) {
-				player.addItem(newItem);
-			}
-			else {
-				cout << "Invalid Choice! ";
+			if (shop.canAffordItem(itemName, player.getMoney())) {				
+				
+				if (shop.purchaseItem(itemName, newItem) == true) {
+					//subtract money from player according to item value
+					player.addMoney(-newItem.getValue());
+					//add money to store
+					shop.addMoney(newItem.getValue());
+					player.addItem(newItem);
+				} else {
+					cout << "Invalid Choice!\n";
+					system("PAUSE");
+				}
+			} else {
+				cout << "You dont have enough money!\n";
 				system("PAUSE");
 			}
-		}
-		else {
+		} else { //sell
 			cout << "Enter the item you wish to sell: ";
-			cin >> itemName;
 
-			if (player.removeItem(itemName, newItem) == true) {
-				shop.addItem(newItem);
-			}
-			else {
-				cout << "Invalid Choice! ";
+			//clears input
+			cin.ignore(64, '\n');
+			cin.clear();
+			getline(cin, itemName);
+
+			if (player.canAffordItem(itemName, shop.getMoney())) {
+
+				if (player.removeItem(itemName, newItem) == true) {
+					shop.addMoney(-newItem.getValue());
+					shop.addItem(newItem);
+					player.addMoney(newItem.getValue());
+				} else {
+					cout << "Invalid Choice! ";
+					system("PAUSE");
+				}
+			} else {
+				cout << "The shop dosent have enough money!\n";
 				system("PAUSE");
 			}
 		}

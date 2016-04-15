@@ -11,14 +11,33 @@ Shop::Shop(string name, int money)
 void Shop::printShop()
 {
 	cout << "*** Welcome to " << _name << " ***\n";
+	cout << "Money: " << _money << " GP\n\n";
 	list<item>::iterator lit;
 
 	int i = 0;
 
 	for (lit = _items.begin(); lit != _items.end(); lit++) {
-		cout << i << ". "<< (*lit).getName() << " x " << (*lit).getCount() << endl;
+		cout << i << ". "<< (*lit).getName() << " x " << (*lit).getCount()<< "Price: "<<(*lit).getValue() << " GP" << endl;
 		i++;
 	}
+	cout << endl;
+}
+
+bool Shop::canAffordItem(string name, int money)
+{
+	list<item>::iterator lit;
+
+	for (lit = _items.begin(); lit != _items.end(); lit++) {
+		if ((*lit).getName() == name) {
+			if ((*lit).getValue() <= money) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+	}
+	return false;
 }
 
 bool Shop::purchaseItem(string name, item &newItem)
@@ -28,31 +47,29 @@ bool Shop::purchaseItem(string name, item &newItem)
 	for (lit = _items.begin(); lit != _items.end(); lit++) {
 		if ((*lit).getName() == name) {
 			newItem = (*lit);
-			//once player has chosen an item return 1 of the requested item
+
 			newItem.setCount(1);
 			(*lit).removeOne();
 
-			//if there are no more of a specific item remove it from list
-			if ((*lit).getCount == 0) {
+			//if the item has a count of 0, remove it
+			if ((*lit).getCount() == 0) {
 				_items.erase(lit);
 			}
-			//return true if item is found
 			return true;
 		}
 	}
-
-	//return false if item not found
 	return false;
 	
 }
 
 void Shop::addItem(item newItem)
 {
-	list<item>::iterator lit;
+
 	//iterates through list of items
+	list<item>::iterator lit;
+
 	for (lit = _items.begin(); lit != _items.end(); lit++) {
-		//(*lit) takes presedence over the (.) operator
-		//if new item is found add to list
+		//if the item is already in the shop, just increase count and return
 		if ((*lit).getName() == newItem.getName()) {
 			(*lit).addOne();
 			return;
